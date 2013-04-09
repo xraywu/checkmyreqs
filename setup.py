@@ -15,7 +15,7 @@ except:
     pass
 
 APP_NAME = 'checkmyreqs'
-VERSION = '0.1.2'
+VERSION = '0.1.3'
 
 # Grab requirments.
 with open('requirements.txt') as f:
