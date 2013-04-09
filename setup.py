@@ -57,7 +57,7 @@ settings.update(
     license='LICENSE.txt',
     description='Check your project requirements for Python version compatibility',
     long_description=open('README.rst').read(),
-    classifiers=(
+    classifiers=[
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'License :: OSI Approved :: BSD License',
@@ -66,8 +66,8 @@ settings.update(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
-    ),
+        'Programming Language :: Python :: 3.3'
+    ],
     test_suite='nose.collector',
     tests_require=['nose'],
     install_requires=required,
