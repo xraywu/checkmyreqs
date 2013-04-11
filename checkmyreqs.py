@@ -11,7 +11,9 @@ from __future__ import print_function
 
 import argparse
 import os
+import re
 import sys
+import errno
 
 try:
     # Different location in Python 3
@@ -30,14 +32,12 @@ IGNORED_PREFIXES = [
     '#', 'git+', 'hg+', 'svn+', 'bzr+', '\n', '\r\n'
 ]
 
+
 def reset_styles():
     """
     Reset the foreground styles of the console text
     """
-    try:
-        print(Fore.RESET, end='')
-    except:
-        pass
+    print(Fore.RESET, end='')
 
 
 def parse_requirements_file(req_file):
@@ -149,19 +149,41 @@ def main():
     parser = argparse.ArgumentParser('Checks a requirements file for Python version compatibility')
 
     parser.add_argument(
-        '-f', '--files', default='requirements.txt', required=False,
+        '-f', '--files', required=False,
         help='requirements file(s) to check',
-        type=argparse.FileType('r'), nargs="+"
+        type=argparse.FileType(), nargs="+"
     )
     parser.add_argument(
         '-p', '--python', required=False,
         help='Version of Python to check against. E.g. 2.5',
-        default='.'.join(map(str, sys.version_info))
+        default='.'.join(map(str, [sys.version_info.major, sys.version_info.minor]))
     )
 
     args = parser.parse_args()
 
-    for filepath in args.files:
+    # If a file wasn't passed in, check if pip freeze has been piped, then try to read requirements.txt
+    if args.files is None:
+
+        if not sys.stdin.isatty():
+            args_files = [sys.stdin]
+
+        else:
+
+            try:
+                args_files = [open('requirements.txt')]
+
+            except IOError:
+                print('Default file requirements.txt not found')
+                sys.exit(errno.ENOENT)
+    else:
+        args_files = args.files
+
+    # Make sure Python version is in X.Y format
+    if re.match('^[2-3].[0-9]$', args.python) is None:
+        print('Python argument invalid: Must be in X.Y format, where X is 2 or 3 and Y is 0-9')
+        sys.exit(errno.EINVAL)
+
+    for filepath in args_files:
         packages = parse_requirements_file(filepath)
         check_packages(packages, args.python)
         print('\n')

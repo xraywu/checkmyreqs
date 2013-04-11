@@ -4,6 +4,9 @@ checkmyreqs
 
 checkmyreqs allows you to check the packages in your requirements file against a specified Python version.
 
+Usage
+=====
+
 This command will check 2 requirements files, to see if their packages are compatible with Python 3.3 ::
 
     checkmyreqs -f requirements.txt,requirements_dev.txt -p 3.3
@@ -19,7 +22,11 @@ For each package, checkmyreqs will tell you if updating them will give you suppo
 There are 2 parameters ::
 
     -f, --files : comma-separated list of files to check (optional, default is requirements.txt)
-    -p, --python : Python version to check compatibility, example 2.7 or 3.2
+    -p, --python : Python version to check compatibility, example 2.7 or 3.2 (optional, default is system Python)
+
+You can also use ``pip freeze`` to check a Python environment without a requirements file, like so ::
+
+    pip freeze | checkmyreqs -p 3.3
 
 Caveat
 ======
