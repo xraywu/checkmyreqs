@@ -5,7 +5,7 @@ checkmyreqs
 checkmyreqs allows you to check the packages in your requirements file against a specified Python version.
 
 .. image:: https://api.travis-ci.org/dustinmm80/checkmyreqs.png
-    :target: https://api.travis-ci.org/dustinmm80/checkmyreqs
+    :target: https://travis-ci.org/dustinmm80/checkmyreqs
 
 Usage
 =====
