@@ -15,7 +15,7 @@ except:
     pass
 
 APP_NAME = 'checkmyreqs'
-VERSION = '0.1.4'
+VERSION = '0.1.5'
 
 # Grab requirments.
 with open('requirements.txt') as f:
@@ -54,13 +54,13 @@ settings.update(
     packages=['tests'],
     scripts=['checkmyreqs.py'],
     url='https://github.com/dustinmm80/checkmyreqs',
-    license='LICENSE.txt',
+    license='MIT',
     description='Check your project requirements for Python version compatibility',
     long_description=open('README.rst').read(),
     classifiers=[
         'Intended Audience :: Developers',
         'Natural Language :: English',
-        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',

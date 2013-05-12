@@ -22,10 +22,10 @@ The output is a list of packages not supported by the given Python version.
 
 For each package, checkmyreqs will tell you if updating them will give you support.
 
-There are 2 parameters ::
+There are 3 parameters ::
 
-    -f, --files : comma-separated list of files to check (optional, default is requirements.txt)
-    -p, --python : Python version to check compatibility, example 2.7 or 3.2 (optional, default is system Python)
+    -f, --files   : comma-separated list of files to check (optional, default is requirements.txt)
+    -p, --python  : Python version to check compatibility, example 2.7 or 3.2 (optional, default is system Python)
 
 You can also use ``pip freeze`` to check a Python environment without a requirements file, like so ::
 

@@ -2,7 +2,9 @@
 # coding=utf-8
 
 """
-CheckMyReqs
+checkmyreqs
+
+Parses a requirements file to check what libraries are listed as supported with a given Python version
 
 Uses xmlrpc pypi methods as defined here: http://wiki.python.org/moin/PyPIXmlRpc
 """
@@ -15,29 +17,23 @@ import re
 import sys
 import errno
 
+from blessings import Terminal
+
+TERMINAL = Terminal()
+
 try:
     # Different location in Python 3
     from xmlrpc.client import ServerProxy
 except ImportError:
     from xmlrpclib import ServerProxy
 
-from colorama import init as colorama_init, Fore
-
-colorama_init()
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 CLIENT = ServerProxy('http://pypi.python.org/pypi')
 
-IGNORED_PREFIXES = [
-    '#', 'git+', 'hg+', 'svn+', 'bzr+', '\n', '\r\n'
-]
+IGNORED_PREFIXES = ['#', 'git+', 'hg+', 'svn+', 'bzr+', '\n', '\r\n']
 
-
-def reset_styles():
-    """
-    Reset the foreground styles of the console text
-    """
-    print(Fore.RESET, end='')
+PYTHON_VERSION = None
 
 
 def parse_requirements_file(req_file):
@@ -47,16 +43,6 @@ def parse_requirements_file(req_file):
 
     :return dict of package names and versions
     """
-    print(''.join([
-        Fore.CYAN,
-        req_file.name,
-        '\r\n',
-        '----------------------------------------------------------'
-    ])
-    )
-
-    reset_styles()
-
     packages = {}
 
     for line in req_file:
@@ -77,51 +63,42 @@ def parse_requirements_file(req_file):
 
     return packages
 
-
-def check_packages(packages, python_version):
+def check_packages(packages):
     """
-    Check the packages from the requirements file against pypi.python.org
-    :param packages: dict of packages names and versions
-    :param python_version: version of python to check packages against
-    """
-    for package_name, version in packages.items():
-        check_package(package_name, version, python_version)
-
-
-def check_package(package_name, package_version, python_version):
-    """
-    Checks a package for compatibility with the given Python version
+    Checks a list of packages for compatibility with the given Python version
     Prints warning line if the package is not supported for the given Python version
     If upgrading the package will allow compatibility, the version to upgrade is printed
     If the package is not listed on pypi.python.org, error line is printed
 
-    :param package_name: name of the package to check
-    :param package_version: version of the package to check
-    :param python_version: version of Python to check compatibility for
+    :param packages: dict of packages names and versions
     """
-    package_info = CLIENT.release_data(package_name, package_version)
-    package_releases = CLIENT.package_releases(package_name)
 
-    if package_releases:
-        supported_pythons = get_supported_pythons(package_info)
+    for package_name, package_version in packages.items():
+        print(TERMINAL.bold(package_name))
 
-        if python_version not in supported_pythons:
-            print(
-                '{0.YELLOW}{1} {2} is not listed as compatible with Python {3}{0.RESET}'.format(
-                    Fore, package_name, package_version, python_version
-                )
-            )
-            latest_version = package_releases[0]
-            latest_package_info = CLIENT.release_data(package_name, latest_version)
-            latest_supported_pythons = get_supported_pythons(latest_package_info)
-            if python_version in latest_supported_pythons:
-                print(
-                    '{0.GREEN}upgrade to {1} {2} for Python {3} support{0.RESET}'.format(
-                        Fore, package_name, latest_version, python_version
-                    )
-                )
-    else:
-        print('{0.RED}{1} is not listed on pypi.python.org{0.RESET}'.format(Fore, package_name))
+        package_info = CLIENT.release_data(package_name, package_version)
+        package_releases = CLIENT.package_releases(package_name)
+
+        if package_releases:
+            supported_pythons = get_supported_pythons(package_info)
+
+            if PYTHON_VERSION in supported_pythons:
+                    print(TERMINAL.green('compatible'))
+            else:
+                latest_version = package_releases[0]
+                latest_package_info = CLIENT.release_data(package_name, latest_version)
+                latest_supported_pythons = get_supported_pythons(latest_package_info)
+
+                upgrade_available = ''
+
+                if PYTHON_VERSION in latest_supported_pythons:
+                    upgrade_available = ' - update to v{} for support'.format(latest_version)
+
+                print(TERMINAL.red('not compatible{}'.format(upgrade_available)))
+        else:
+            print(TERMINAL.red('not listed on pypi.python.org'))
+
+        print('-----')
 
 
 def get_supported_pythons(package_info):
@@ -163,12 +140,9 @@ def main():
 
     # If a file wasn't passed in, check if pip freeze has been piped, then try to read requirements.txt
     if args.files is None:
-
         if not sys.stdin.isatty():
             args_files = [sys.stdin]
-
         else:
-
             try:
                 args_files = [open('requirements.txt')]
 
@@ -183,12 +157,16 @@ def main():
         print('Python argument invalid: Must be in X.Y format, where X is 2 or 3 and Y is 0-9')
         sys.exit(errno.EINVAL)
 
-    for filepath in args_files:
-        packages = parse_requirements_file(filepath)
-        check_packages(packages, args.python)
-        print('\n')
+    PYTHON_VERSION = args.python
 
-    reset_styles()
+    print('Checking for compatibility with Python {}'.format(PYTHON_VERSION))
+
+    for filepath in args_files:
+        print('{0}\r\n*****'.format(filepath.name))
+
+        packages = parse_requirements_file(filepath)
+        check_packages(packages)
+        print('\n')
 
 
 if __name__ == '__main__':
