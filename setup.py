@@ -15,7 +15,7 @@ except:
     pass
 
 APP_NAME = 'checkmyreqs'
-VERSION = '0.1.5'
+VERSION = '0.1.6'
 
 # Grab requirments.
 with open('requirements.txt') as f:
@@ -52,7 +52,7 @@ settings.update(
     author='Dustin Collins',
     author_email='dustinrcollins@gmail.com',
     packages=['tests'],
-    scripts=['checkmyreqs.py'],
+    scripts=['checkmyreqs'],
     url='https://github.com/dustinmm80/checkmyreqs',
     license='MIT',
     description='Check your project requirements for Python version compatibility',
@@ -70,12 +70,7 @@ settings.update(
     ],
     test_suite='nose.collector',
     tests_require=['nose'],
-    install_requires=required,
-    entry_points={
-        'console_scripts': [
-            'checkmyreqs = checkmyreqs:main',
-        ],
-    }
+    install_requires=required
 )
 
 setup(**settings)
