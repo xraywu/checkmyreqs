@@ -53,3 +53,16 @@ Installation
 Supports Python 2.7, 3.2, 3.3
 
 Python <=2.6, 3.0 and 3.1 are not supported, they don't have argparse
+
+Development
+===========
+
+You can install the requirements with ::
+
+
+    pip install -r requirements.txt
+    pip install -r requirements_dev.txt
+
+Then, run the tests with ::
+
+    py.test

@@ -46,14 +46,14 @@ class TestRequirementFileParserTestCases(unittest.TestCase):
         # packages should only include the gitconfig package
         self.assertEqual(len(packages), 1)
 
-    def test_file_with_no_classifiers(self):
+    def test_file_with_no_version(self):
         """
-        Check a package with no classifiers
+        Check a package with no version, should skip
         """
-        with open(os.path.join(BASE_PATH, 'files/requirements_empty_classifiers.txt')) as f:
+        with open(os.path.join(BASE_PATH, 'files/requirements_unpinned.txt')) as f:
             packages = parse_requirements_file(f)
 
-        self.assertEqual(len(packages), 1)
+        self.assertEqual(len(packages), 0)
 
 
 class TestCheckPackageTestCases(unittest.TestCase):

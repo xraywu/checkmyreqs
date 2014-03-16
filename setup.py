@@ -3,16 +3,8 @@
 
 import os
 import sys
+from setuptools import setup, Command
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
-
-try:
-    import multiprocessing
-except:
-    pass
 
 APP_NAME = 'checkmyreqs'
 VERSION = '0.1.6'
@@ -21,7 +13,18 @@ VERSION = '0.1.6'
 with open('requirements.txt') as f:
     required = f.readlines()
 
-settings = dict()
+class PyTest(Command):
+    user_options = []
+    def initialize_options(self):
+        pass
+    def finalize_options(self):
+        pass
+    def run(self):
+        import sys,subprocess
+        errno = subprocess.call([sys.executable, 'runtests.py'])
+        raise SystemExit(errno)
+
+settings = {}
 
 # Publish Helper.
 if sys.argv[-1] == 'publish':
@@ -68,8 +71,7 @@ settings.update(
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3'
     ],
-    test_suite='nose.collector',
-    tests_require=['nose'],
+    cmdclass = {'test': PyTest},
     install_requires=required
 )
 

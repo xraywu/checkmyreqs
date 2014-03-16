@@ -1,4 +1,6 @@
-# Requirements for development
-ipython==0.13.2
-tox==1.4.3
-nose==1.2.1
+# Dev and build packages
+
+# Testing
+pytest==2.5.1
+pytest-cov==1.6
+pytest-instafail==0.1.1
