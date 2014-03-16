@@ -7,7 +7,7 @@ from setuptools import setup, Command
 
 
 APP_NAME = 'checkmyreqs'
-VERSION = '0.1.6'
+VERSION = '0.2.0'
 
 # Grab requirments.
 with open('requirements.txt') as f:
