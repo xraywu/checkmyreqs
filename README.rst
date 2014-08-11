@@ -50,7 +50,7 @@ Installation
 
 ----
 
-Supports Python 2.7, 3.2, 3.3
+Supports Python 2.7, 3.2, 3.3, 3.4
 
 Python <=2.6, 3.0 and 3.1 are not supported, they don't have argparse
 
