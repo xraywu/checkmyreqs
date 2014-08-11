@@ -33,8 +33,6 @@ CLIENT = ServerProxy('http://pypi.python.org/pypi')
 
 IGNORED_PREFIXES = ['#', 'git+', 'hg+', 'svn+', 'bzr+', '\n', '\r\n']
 
-PYTHON_VERSION = None
-
 
 def parse_requirements_file(req_file):
     """
@@ -62,7 +60,7 @@ def parse_requirements_file(req_file):
 
     return packages
 
-def check_packages(packages):
+def check_packages(packages, python_version):
     """
     Checks a list of packages for compatibility with the given Python version
     Prints warning line if the package is not supported for the given Python version
@@ -70,6 +68,7 @@ def check_packages(packages):
     If the package is not listed on pypi.python.org, error line is printed
 
     :param packages: dict of packages names and versions
+    :param python_version: python version to be checked for support
     """
 
     for package_name, package_version in packages.items():
@@ -81,8 +80,16 @@ def check_packages(packages):
         if package_releases:
             supported_pythons = get_supported_pythons(package_info)
 
-            if PYTHON_VERSION in supported_pythons:
-                    print(TERMINAL.green('compatible'))
+
+            # Some entries list support of Programming Language :: Python :: 3
+            # So we also want to check the major revision number of the version 
+            # against the list of supported versions
+            major_python_version = python_version.split('.')[0]
+
+            if python_version in supported_pythons:
+                print(TERMINAL.green('compatible'))
+            elif major_python_version in supported_pythons:
+                print(TERMINAL.green('compatible'))
             else:
                 latest_version = package_releases[0]
                 latest_package_info = CLIENT.release_data(package_name, latest_version)
@@ -90,10 +97,22 @@ def check_packages(packages):
 
                 upgrade_available = ''
 
-                if PYTHON_VERSION in latest_supported_pythons:
-                    upgrade_available = ' - update to v{} for support'.format(latest_version)
 
-                print(TERMINAL.red('not compatible{}'.format(upgrade_available)))
+                if supported_pythons:
+
+                    if python_version in latest_supported_pythons:
+                        upgrade_available = ' - update to v{} for support'.format(latest_version)
+
+                    print(TERMINAL.red('not compatible{}'.format(upgrade_available)))
+                else:
+                    # We get here if there was not compatability information for
+                    # the package version we requested
+
+                    if python_version in latest_supported_pythons:
+                        upgrade_available = ' - update to v{} for explicit support'.format(latest_version)
+
+                    print(TERMINAL.yellow('not specified{}').format(upgrade_available))
+
         else:
             print(TERMINAL.red('not listed on pypi.python.org'))
 
@@ -156,15 +175,13 @@ def main():
         print('Python argument invalid: Must be in X.Y format, where X is 2 or 3 and Y is 0-9')
         sys.exit(errno.EINVAL)
 
-    PYTHON_VERSION = args.python
-
-    print('Checking for compatibility with Python {}'.format(PYTHON_VERSION))
+    print('Checking for compatibility with Python {}'.format(args.python))
 
     for filepath in args_files:
         print('{0}\r\n*****'.format(filepath.name))
 
         packages = parse_requirements_file(filepath)
-        check_packages(packages)
+        check_packages(packages, args.python)
         print('\n')
 
 
