@@ -126,7 +126,7 @@ def get_supported_pythons(package_info):
     :return: Versions of Python supported, may be empty
     """
     versions = []
-    classifiers = package_info.get('classifiers')
+    classifiers = package_info.get('classifiers', [])
 
     for c in classifiers:
         if c.startswith('Programming Language :: Python ::'):
